@@ -201,3 +201,67 @@ TASK 5 - Parsing enzyme.dat
 - Relations Protein-Enzyme finales : 42922
 - Nœuds Enzyme extraits depuis enzyme.dat : 8441
 - Nœuds Enzyme réellement utilisés : 1588
+
+TASK 6 - Construction du PPN (Jaccard)
+
+1. Fichier utilisé :
+- data/processed/protein_interpro_rel.csv
+
+2. Objectif :
+- construire un réseau Protein-Protein basé sur la similarité Jaccard des domaines InterPro
+- conserver des arêtes pondérées exploitables dans Neo4j
+
+3. Script créé :
+- scripts/09_build_ppn_jaccard.py
+
+4. Fichier généré :
+- data/processed/protein_similarity_jaccard.csv
+
+5. Vérifications :
+- colonnes présentes : protein_a, protein_b, weight, shared_domains, union_domains
+- poids de similarité (weight) bien présent
+
+6. Résultats finaux :
+- Nombre d'arêtes de similarité : 1216846
+
+TASK 7 - Calcul des statistiques projet
+
+1. Objectif :
+- calculer les métriques globales demandées pour le rendu
+
+2. Script créé :
+- scripts/10_compute_project_stats.py
+
+3. Fichiers générés :
+- data/processed/project_stats.json
+- data/processed/project_stats_table.csv
+
+4. Résultats finaux :
+- proteins_total : 302136
+- proteins_with_go : 240288
+- proteins_with_ec : 39254
+- proteins_with_interpro : 267167
+- labelled_proteins_go_or_ec : 240399
+- unlabelled_proteins_go_and_ec : 61737
+- go_annotations_total : 2229875
+- ec_annotations_total : 42922
+- interpro_annotations_total : 1268042
+- similarity_edges_total : 1216846
+- isolated_proteins_in_ppn : 178791
+
+TASK 8 - Label propagation (baseline)
+
+1. Objectif :
+- prédire des annotations GO/EC à partir du graphe de similarité protéine-protéine
+
+2. Script créé :
+- scripts/11_label_propagation_baseline.py
+
+3. Fichier généré :
+- data/processed/protein_label_predictions.csv
+
+4. Vérifications :
+- colonnes présentes : accession, label_type, predicted_label, score, support_neighbors, rank
+
+5. Résultats finaux :
+- Nombre total de prédictions : 49171
