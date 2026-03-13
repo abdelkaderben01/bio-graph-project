@@ -1,0 +1,6 @@
+/.venv
+
+# Large raw datasets (keep out of Git history)
+/data/raw/**
+/data/extracted/**
+/data/processed/**

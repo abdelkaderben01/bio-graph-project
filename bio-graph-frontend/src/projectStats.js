@@ -1,0 +1,30 @@
+export const PROJECT_STATS = {
+  proteins_total: 302136,
+  go_terms_count: 48251,
+  interpro_entries_count: 20017,
+  enzyme_count: 1588,
+  similarity_edges_total: 1216846,
+  predicted_annotations: 49171,
+  proteins_with_go: 240288,
+  proteins_with_ec: 39254,
+  proteins_with_interpro: 267167,
+  labelled_proteins_go_or_ec: 240399,
+  unlabelled_proteins_go_and_ec: 61737,
+  go_annotations_total: 2229875,
+  ec_annotations_total: 42922,
+  interpro_annotations_total: 1268042,
+  isolated_proteins_in_ppn: 178791,
+};
+
+export const PROJECT_STATS_LABELS = [
+  ["proteins_total", "Proteins"],
+  ["go_terms_count", "GO Terms"],
+  ["interpro_entries_count", "InterPro Domains"],
+  ["enzyme_count", "Enzymes"],
+  ["similarity_edges_total", "Similarity links"],
+  ["predicted_annotations", "Predicted annotations"],
+  ["labelled_proteins_go_or_ec", "Labelled proteins (GO/EC)"],
+  ["unlabelled_proteins_go_and_ec", "Unlabelled proteins"],
+  ["go_annotations_total", "GO annotations"],
+  ["interpro_annotations_total", "InterPro annotations"],
+];

@@ -1,0 +1,203 @@
+TASK 1 - Exploration fichiers UniProt
+
+1. Structure projet créée :
+- data/raw
+- data/extracted
+- data/processed
+- scripts
+- docs
+
+2. Fichiers présents :
+- uniprotkb_AND_model_organism_9606_2025_02_07 (1).tsv
+- uniprotkb_AND_model_organism_9606_2026_02_06 (1).tsv
+- uniprotkb_AND_model_organism_10116_2026_02_06 (1).tsv
+
+3. Organismes :
+- 9606 = Homo sapiens
+- 10116 = Rattus norvegicus
+
+4. Inspection des fichiers :
+
+Fichier : uniprotkb_AND_model_organism_9606_2025_02_07 (1).tsv
+Nombre de lignes : 205003
+Colonnes :
+- Entry
+- Entry Name
+- Protein names
+- Gene Names
+- Organism
+- Sequence
+- EC number
+- InterPro
+
+Fichier : uniprotkb_AND_model_organism_9606_2026_02_06 (1).tsv
+Nombre de lignes : 205155
+Colonnes :
+- Entry
+- Entry Name
+- Sequence
+- InterPro
+- EC number
+- Protein names
+
+Fichier : uniprotkb_AND_model_organism_10116_2026_02_06 (1).tsv
+Nombre de lignes : 96981
+Colonnes :
+- Entry
+- Entry Name
+- Sequence
+- InterPro
+- EC number
+- Protein names
+
+5. Comparaison des deux fichiers 9606 :
+- File 1 rows : 205003
+- File 2 rows : 205155
+- Même colonnes ? False
+- Décision : garder le fichier le plus récent (2026_02_06) pour l'humain.
+
+6. Nettoyage réalisé :
+- Sélection des colonnes utiles disponibles
+- Renommage des colonnes vers le format projet
+- Suppression des doublons sur accession
+- Export CSV dans data/processed
+
+7. Fichiers finaux créés :
+- data/processed/proteins_human_clean.csv (205155 lignes)
+- data/processed/proteins_rat_clean.csv (96981 lignes)
+- data/processed/proteins_all_clean.csv (302136 lignes)
+
+8. Vérification fichiers finaux :
+- Colonnes (human/rat/all) : accession, entry_name, protein_name, interpro_ids, ec_number
+- Colonne accession présente : oui
+- Valeurs vides observées :
+	- human : interpro_ids=23199, ec_number=180630
+	- rat : interpro_ids=11924, ec_number=82252
+	- all : interpro_ids=35123, ec_number=262882
+
+9. Scripts créés :
+- scripts/01_inspect_uniprot.py
+- scripts/02_compare_9606.py
+- scripts/03_clean_uniprot.py
+- scripts/04_merge_proteins.py
+
+TASK 2 - Parsing de l'ontologie GO
+
+1. Fichier utilisé :
+- data/raw/go-basic.obo
+
+2. Objectif :
+- extraire les termes GO
+- extraire les relations entre termes GO
+
+3. Script créé :
+- scripts/05_parse_go_obo.py
+
+4. Fichiers générés :
+- data/processed/go_terms.csv
+- data/processed/go_relations.csv
+
+5. Résultats :
+- Nombre de termes GO : 48251
+- Nombre de relations GO : 73004
+
+6. Vérifications :
+- go_terms.csv : colonnes go_id, name, namespace, definition, is_obsolete présentes
+- go_relations.csv : colonnes source_go_id, relation_type, target_go_id présentes
+- types de relation détectés : IS_A, PART_OF, REGULATES (aussi POSITIVELY_REGULATES, NEGATIVELY_REGULATES)
+
+TASK 3 - Parsing des annotations GOA UniProt
+
+1. Fichier utilisé :
+- data/raw/goa_uniprot_all.gaf.gz
+
+2. Objectif :
+- extraire les annotations protéines -> GO
+- filtrer uniquement les protéines présentes dans proteins_all_clean.csv
+
+3. Script créé :
+- scripts/06_parse_goa_gaf.py
+
+4. Fichier généré :
+- data/processed/protein_go_rel.csv
+
+5. Colonnes générées :
+- accession
+- go_id
+- evidence_code
+- reference
+- aspect
+- aspect_name
+- assigned_by
+- qualifier
+
+6. Vérifications :
+- accession présent
+- go_id présent
+- aspect P/F/C détectés
+- doublons supprimés
+
+7. Résultats finaux :
+- Lignes totales lues : 857017321
+- Lignes conservées avant déduplication : 2477858
+- Lignes finales après déduplication : 2229875
+- Répartition des aspects : C=932652, P=688234, F=608989
+- Evidence codes principaux : IEA=1372767, ISO=194778, IDA=163829
+
+8. Fichier généré avec succès :
+- data/processed/protein_go_rel.csv (2229875 annotations)
+
+TASK 4 - Parsing InterPro
+
+1. Fichier utilisé :
+- data/raw/protein2ipr.dat.gz
+
+2. Objectif :
+- extraire les relations protéines -> InterPro
+- créer les nœuds InterPro
+- filtrer uniquement les protéines présentes dans proteins_all_clean.csv
+
+3. Script créé :
+- scripts/07_parse_interpro.py
+
+4. Fichiers générés :
+- data/processed/protein_interpro_rel.csv
+- data/processed/interpro_nodes.csv
+
+5. Vérifications :
+- accession présent
+- ipr_id présent
+- ipr_name présent
+- doublons supprimés
+
+6. Résultats finaux :
+- Lignes totales lues : 1175529272
+- Lignes conservées avant déduplication : 2582406
+- Relations finales Protein-InterPro : 1268042
+- Nœuds InterPro finaux : 20017
+
+7. Fichiers générés avec succès :
+- data/processed/protein_interpro_rel.csv (1268042 relations)
+- data/processed/interpro_nodes.csv (20017 nœuds)
+
+TASK 5 - Parsing enzyme.dat
+
+1. Fichier utilisé :
+- data/raw/enzyme.dat
+
+2. Objectif :
+- extraire les nœuds Enzyme / EC
+- créer les relations protéines -> enzyme à partir de ec_number
+
+3. Script créé :
+- scripts/08_parse_enzyme.py
+
+4. Fichiers générés :
+- data/processed/enzyme_nodes.csv
+- data/processed/protein_enzyme_rel.csv
+
+5. Résultats finaux :
+- Nombre de protéines avec EC number : 39254
+- Relations Protein-Enzyme finales : 42922
+- Nœuds Enzyme extraits depuis enzyme.dat : 8441
+- Nœuds Enzyme réellement utilisés : 1588
