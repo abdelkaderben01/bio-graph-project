@@ -98,6 +98,8 @@ Sortie:
 - Neo4j local
 
 ## 6) Lancer l'application (etape par etape)
+Note importante: l'application peut demarrer sans CSV, mais pour explorer des donnees il faut importer les CSV requis dans Neo4j (voir section 11).
+
 ### 6.1 Frontend
 ```bash
 cd bio-graph-frontend
@@ -258,9 +260,28 @@ npm run lint
 npm run build
 ```
 
-## 11) Problemes frequents
-- Graphe vide: verifier .env et le serveur Neo4j.
-- Erreur npm: relancer npm install.
-- 0 resultat sur une query: tester Q04828 ou GO:0005886.
+## 11) Fichiers CSV requis 
 
----
+Important: le frontend n'explore pas directement les CSV. Il interroge Neo4j.
+Le prof doit donc disposer des CSV suivants et les importer dans Neo4j.
+Script d'import complet pret a executer: docs/neo4j_import_full.cypher
+
+### Minimum utile (exploration de base)
+- data/processed/proteins_human_clean.csv (ou data/processed/proteins_all_clean.csv)
+- data/processed/go_terms.csv
+- data/processed/protein_go_rel.csv
+
+### Experience complete (toutes les vues de l'interface)
+- data/processed/proteins_human_clean.csv (ou data/processed/proteins_all_clean.csv)
+- data/processed/go_terms.csv
+- data/processed/go_relations.csv
+- data/processed/protein_go_rel.csv
+- data/processed/interpro_nodes.csv
+- data/processed/protein_interpro_rel.csv
+- data/processed/enzyme_nodes.csv
+- data/processed/protein_enzyme_rel.csv
+- data/processed/protein_similarity_jaccard.csv
+
+### Optionnel
+- data/processed/protein_label_predictions.csv
+    (active les relations PREDICTED_ANNOTATION et la vue de prediction)
