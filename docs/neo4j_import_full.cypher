@@ -8,6 +8,8 @@
 // - protein_go_rel.csv
 // - protein_interpro_rel.csv
 // - protein_enzyme_rel.csv
+// - protein_similarity_jaccard.csv
+// - protein_label_predictions.csv
 
 // Etape 4 - creer les contraintes Neo4j
 
@@ -117,3 +119,23 @@ LOAD CSV WITH HEADERS FROM 'file:///protein_enzyme_rel.csv' AS row
 MATCH (p:Protein {accession: row.accession})
 MATCH (e:Enzyme {ec_number: row.ec_number})
 MERGE (p)-[:HAS_EC]->(e);
+
+// 6.5 Relations Protein <-> Protein (Jaccard similarity)
+LOAD CSV WITH HEADERS FROM 'file:///protein_similarity_jaccard.csv' AS row
+MATCH (a:Protein {accession: row.protein_a})
+MATCH (b:Protein {accession: row.protein_b})
+MERGE (a)-[r:SIMILAR_TO]-(b)
+SET r.weight = toFloat(row.weight),
+    r.shared_domains = toInteger(row.shared_domains),
+    r.union_domains = toInteger(row.union_domains);
+
+// 6.6 Predictions Protein -> GO (label propagation baseline)
+LOAD CSV WITH HEADERS FROM 'file:///protein_label_predictions.csv' AS row
+WITH row
+WHERE row.label_type = 'GO'
+MATCH (p:Protein {accession: row.accession})
+MATCH (g:GOTerm {go_id: row.predicted_label})
+MERGE (p)-[r:PREDICTED_ANNOTATION]->(g)
+SET r.score = toFloat(row.score),
+    r.support = toInteger(row.support_neighbors),
+    r.rank = toInteger(row.rank);

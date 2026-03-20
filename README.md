@@ -97,10 +97,51 @@ Sortie:
 - npm
 - Neo4j local
 
-## 6) Lancer l'application (etape par etape)
-Note importante: l'application peut demarrer sans CSV, mais pour explorer des donnees il faut importer les CSV requis dans Neo4j (voir section 11).
+### 5.1 Dependances Python
+Depuis la racine du projet:
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/macOS
+# source .venv/bin/activate
 
-### 6.1 Frontend
+pip install -r requirements.txt
+```
+
+### 5.2 Donnees brutes attendues (from scratch)
+Les scripts Python utilisent les fichiers suivants dans `data/raw/`:
+- `go-basic.obo` (GO ontology)
+- `goa_uniprot_all.gaf.gz` (GOA annotations)
+- `protein2ipr.dat.gz` (mapping UniProt -> InterPro)
+- `enzyme.dat` (ou `enzyme.dat.txt`, a renommer en `enzyme.dat`)
+
+Important: si `enzyme.dat.txt` est present, renommer le fichier avant d'executer `scripts/08_parse_enzyme.py`.
+
+## 6) Quick Start (from scratch)
+
+### 6.1 Pipeline data complet
+Depuis la racine du projet:
+```bash
+python scripts/05_parse_go_obo.py
+python scripts/06_parse_goa_gaf.py
+python scripts/07_parse_interpro.py
+python scripts/08_parse_enzyme.py
+python scripts/09_build_ppn_jaccard.py --max-domain-frequency 400 --min-shared 2 --min-jaccard 0.2 --top-k-neighbors 15
+python scripts/10_compute_project_stats.py
+python scripts/11_label_propagation_baseline.py
+```
+
+### 6.2 Import Neo4j
+Copier les CSV de `data/processed/` vers le dossier import de Neo4j, puis executer:
+- `docs/neo4j_import_full.cypher`
+
+Ce script importe:
+- les noeuds et relations de base (Protein, GO, InterPro, Enzyme)
+- les liens `SIMILAR_TO` (Jaccard)
+- les liens `PREDICTED_ANNOTATION` (GO predits)
+
+### 6.3 Frontend
 ```bash
 cd bio-graph-frontend
 npm install
@@ -108,7 +149,18 @@ npm run dev
 ```
 Application: http://localhost:5173
 
-### 6.2 Configuration Neo4j
+## 7) Lancer l'application (etape par etape)
+Note importante: l'application peut demarrer sans CSV, mais pour explorer des donnees il faut importer les CSV requis dans Neo4j (voir section 11).
+
+### 7.1 Frontend
+```bash
+cd bio-graph-frontend
+npm install
+npm run dev
+```
+Application: http://localhost:5173
+
+### 7.2 Configuration Neo4j
 Creer le fichier bio-graph-frontend/.env
 ```env
 VITE_NEO4J_URL=neo4j://127.0.0.1:7687
@@ -116,7 +168,7 @@ VITE_NEO4J_USER=neo4j
 VITE_NEO4J_PASSWORD=your_password
 ```
 
-## 7) Interface utilisateur + requetes utilisees
+## 8) Interface utilisateur + requetes utilisees
 
 L'interface principale est composee de 5 zones:
 - Filtre de type d'entite (Protein / GO Term / Enzyme / InterPro)
@@ -224,7 +276,7 @@ LIMIT 80
 - Clic sur noeud -> details dans le panneau droit.
 - Types de relations visualisees: `SIMILAR_TO`, `ANNOTATED_WITH`, `PREDICTED_ANNOTATION`, `HAS_INTERPRO`, `HAS_EC`, `IS_A`, `PART_OF`, `REGULATES`, `POSITIVELY_REGULATES`, `NEGATIVELY_REGULATES`.
 
-## 8) Import des predictions dans Neo4j
+## 9) Import des predictions dans Neo4j
 Copier:
 - data/processed/protein_label_predictions.csv
 vers le dossier import de Neo4j.
@@ -241,7 +293,7 @@ SET r.score = toFloat(row.score),
     r.rank = toInteger(row.rank);
 ```
 
-## 9) Rejouer le pipeline (si besoin)
+## 10) Rejouer le pipeline (si besoin)
 Depuis la racine du projet:
 ```bash
 python scripts/05_parse_go_obo.py
@@ -252,36 +304,3 @@ python scripts/09_build_ppn_jaccard.py
 python scripts/10_compute_project_stats.py
 python scripts/11_label_propagation_baseline.py
 ```
-
-## 10) Verification avant rendu
-```bash
-cd bio-graph-frontend
-npm run lint
-npm run build
-```
-
-## 11) Fichiers CSV requis 
-
-Important: le frontend n'explore pas directement les CSV. Il interroge Neo4j.
-Le prof doit donc disposer des CSV suivants et les importer dans Neo4j.
-Script d'import complet pret a executer: docs/neo4j_import_full.cypher
-
-### Minimum utile (exploration de base)
-- data/processed/proteins_human_clean.csv (ou data/processed/proteins_all_clean.csv)
-- data/processed/go_terms.csv
-- data/processed/protein_go_rel.csv
-
-### Experience complete (toutes les vues de l'interface)
-- data/processed/proteins_human_clean.csv (ou data/processed/proteins_all_clean.csv)
-- data/processed/go_terms.csv
-- data/processed/go_relations.csv
-- data/processed/protein_go_rel.csv
-- data/processed/interpro_nodes.csv
-- data/processed/protein_interpro_rel.csv
-- data/processed/enzyme_nodes.csv
-- data/processed/protein_enzyme_rel.csv
-- data/processed/protein_similarity_jaccard.csv
-
-### Optionnel
-- data/processed/protein_label_predictions.csv
-    (active les relations PREDICTED_ANNOTATION et la vue de prediction)
