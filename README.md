@@ -17,7 +17,7 @@ Le travail est organise en 3 blocs:
 - Baseline de label propagation pour predire des annotations.
 - Interface web de consultation et visualisation.
 
-## 3) Etapes executees (trace pour le prof)
+## 3) Etapes executees 
 ### Etape 1 - Inspection et nettoyage UniProt
 Scripts:
 - scripts/01_inspect_uniprot.py
